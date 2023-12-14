@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas</title>
+</head>
+
+<body style="margin: 0; padding: 0; background-color: black; color: white;">
+    <canvas id="cvs" width="512" height="512" style="background-color: white;"></canvas>
+    <input id="username" value="Rafiki" type="text">
+    <input id="colorInput" type="color" value="purple">
+    <div id="output">0</div>
+
+    <script>
+        const cvs = document.getElementById("cvs");
+        const username = document.getElementById("username");
+        const colorInput = document.getElementById("colorInput");
+        const output = document.getElementById("output");
+        const ctx = cvs.getContext("2d");
+
+        let lastX = undefined;
+        let lastY = undefined;
+        let history = [];
+
+        // REDRAW
+        if (localStorage.getItem("history") !== null) {
+            history = JSON.parse(localStorage.getItem("history"));
+            history.forEach(e => {
+                ctx.beginPath();
+                ctx.strokeStyle = e.color ? e.color : "red";
+                ctx.moveTo(e.x0, e.y0);
+                ctx.lineTo(e.x, e.y);
+                ctx.stroke();
+            });
+        }
+
+        cvs.addEventListener("mousemove", e => {
+            if (lastX !== undefined && lastY !== undefined && e.buttons > 0) {
+                const color = colorInput.value;
+                history.push({ x: e.clientX, y: e.clientY, x0: lastX, y0: lastY, who: username.value, color: color });
+                localStorage.setItem("history", JSON.stringify(history));
+                output.innerHTML = history.length;
+
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.strokeStyle = color;
+                ctx.lineTo(e.clientX, e.clientY);
+                ctx.stroke();
+            }
+            lastX = e.clientX;
+            lastY = e.clientY;
+        });
+    </script>
+</body>
+
+</html>

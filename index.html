@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas</title>
+</head>
+
+<body style="margin:0;padding: 0; background-color: black;color: white;">
+    <canvas id="cvs" width="512" height="512" style="background-color: white;"></canvas>
+    <input id="username" value="Rafiki" type="text">
+    <input id="colorInput" type="color" value="purple">
+    <div id="output">0</div>
+
+</body>
+<script>
+    let lastX = undefined;
+    let lastY = undefined;
+    let history = [];
+
+    // REDRAW
+    if (localStorage.getItem("history") !== null) {
+        history = JSON.parse(localStorage.history);
+        history.forEach(e => {
+            // DRAW A LINE
+            const ctx = cvs.getContext("2d");
+            ctx.beginPath(); //START A NEW PATH
+            ctx.strokeStyle = e.color ? e.color : "red";
+            ctx.moveTo(e.x0, e.y0) //MOVE THE PEN
+            ctx.lineTo(e.x, e.y) //DRAW A LINE
+            ctx.stroke();//RENDER THE PATH
+        });
+    }
+    cvs.addEventListener("mousemove", e =>{
+        if(lastX != undefined && lastY != undefined && e.buttons > 0){
+            const color = colorInput.value;
+            console.log(color);
+            history.push({x:e.clientX, y:e.clientY, x0:lastX, y0: lastY, who: username.value,color : color});
+            localStorage.history = JSON.stringify(history);
+            output.innerHTML = localStorage.history.length;
+
+            // DRAW A LINE
+            const ctx = cvs.getContext("2d");
+            ctx.beginPath(); //START A NEW PATH
+            ctx.moveTo(lastX, lastY) //MOVE THE PEN
+            ctx.strokeStyle = color;
+            ctx.lineTo(e.clientX, e.clientY) //DRAW A LINE
+            ctx.stroke();//RENDER THE PATH
+
+        }
+        lastX = e.clientX;
+        lastY = e.clientY
+    })
+</script>
+
+</html>
